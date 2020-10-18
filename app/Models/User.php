@@ -18,4 +18,13 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     protected $fillable = [
         'username', 'name', 'email', 'password', 'bio', 'github', 'twitter', 'location', 'viewers', 'photo', 'last_login'
     ];
+
+    protected $hidden = [
+        'password', 'email_verified_at', 'remember_token', 'created_at', 'updated_at'
+    ];
+
+    public function takeUsername($id)
+    {
+        return $this->select('username')->where('id', $id)->get();
+    }
 }

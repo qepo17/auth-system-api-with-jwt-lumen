@@ -5,17 +5,18 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
     public function index()
     {
     }
-    public function show($id)
+    public function show(Request $request, $username)
     {
-        return User::findOrFail($id);
+        return User::where('username', $username)->firstOrfail();
     }
-    public function update(Request $request, $id)
+    public function update(Request $request, $username)
     {
         $this->validate($request, [
             'username' => 'unique:users,username|min:5|max:25',
@@ -26,6 +27,17 @@ class UserController extends Controller
         ]);
 
         $input = $request->input();
+
+
+        if ($request->hasFile('photo')) {
+            $getPhoto = User::select('photo')->where('username', $username)->first();
+            if ($getPhoto != null) {
+                $delete = Storage::delete($getPhoto);
+            }
+            $photo = $request->file('photo')->store('images/profile');
+        } else {
+            $photo = null;
+        }
 
         if ($request->has('password')) {
             $input['password'] = Hash::make($input['password']);
@@ -39,7 +51,8 @@ class UserController extends Controller
             $input['twitter'] = 'twitter.com/' . $input['twitter'];
         }
 
-        $update = User::find($id)->update($input);
+        $input['photo'] = $photo;
+        $update = User::where('username', $username)->first()->update($input);
 
         return [
             'code' => 200,

@@ -13,8 +13,8 @@ class AuthController extends Controller
 
     public function login()
     {
-        $username = Str::of(request('username'))->trim();
-        $password = Str::of(request('password'))->trim();
+        $username = request('username');
+        $password = request('password');
 
         $userData = User::select('username', 'password')->firstWhere('username', $username);
         if ($userData && Hash::check($password, $userData['password'])) {
@@ -45,9 +45,16 @@ class AuthController extends Controller
             'photo' => 'mimes:jpg,jpeg,png,svg|image'
         ]);
 
+        if ($request->hasFile('photo')) {
+            $photo = $request->file('photo')->store('images/profile');
+        } else {
+            $photo = null;
+        }
+
         $input = $request->input();
         $hashPassword = Hash::make($input['password']);
         $input['password'] = $hashPassword;
+        $input['photo'] = $photo;
 
         $post = User::create($input);
 

@@ -16,10 +16,10 @@ class JWTMiddleware
 
         // Unauthorized response if token not there
         if (!$token) {
-            return [
+            return response([
                 'code' => 401,
                 'error' => 'Token tidak ada'
-            ];
+            ], 401);
         }
 
         // refresh token
@@ -37,37 +37,37 @@ class JWTMiddleware
 
                 return ['code' => 200, 'message' => 'Token succesfully refreshed', 'access_token' => $jwt];
             } catch (ExpiredException $e) {
-                return [
+                return response([
                     'code' => 400,
                     'error' => 'Token sudah kadaluarsa'
-                ];
+                ], 400);
             }
         }
 
         // cek header
         if ($header != 'access_token') {
             // Unauthorized response if token not there
-            return [
+            return response([
                 'code' => 401,
                 'error' => 'Tidak valid'
-            ];
+            ], 401);
         }
 
         try {
             $credentials = JWT::decode($token, env('APP_KEY'), ['HS256']);
         } catch (ExpiredException $e) {
-            return [
+            return response([
                 'code' => 400,
                 'error' => 'Token sudah kadaluarsa'
-            ];
+            ], 400);
         } catch (\Exception $e) {
-            return [
+            return response([
                 'code' => 400,
                 'error' => 'Token tidak valid'
-            ];
+            ], 400);
         }
 
-        $request->request->add(['auth' => ['user' => $credentials->username]]);
+        $request->request->add(['auth' => ['username' => $credentials->username]]);
         return $next($request);
     }
 }
