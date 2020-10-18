@@ -5,7 +5,7 @@ $router->group(['prefix' => 'auth'], function () use ($router) {
     $router->post('register', 'AuthController@register');
 });
 
-$router->group(['prefix' => 'api/user', 'middleware' => 'jwt.auth'], function () use ($router) {
-    $router->get('{id}', 'UserController@show');
-    $router->put('{id}', 'UserController@update');
+$router->group(['prefix' => 'api/user', 'middleware' => ['jwt.auth', 'user.auth']], function () use ($router) {
+    $router->get('{username}', 'UserController@show');
+    $router->post('{username}', 'UserController@update');
 });
