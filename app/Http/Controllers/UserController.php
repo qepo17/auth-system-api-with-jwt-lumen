@@ -28,11 +28,10 @@ class UserController extends Controller
 
         $input = $request->input();
 
-
         if ($request->hasFile('photo')) {
             $getPhoto = User::select('photo')->where('username', $username)->first();
             if ($getPhoto != null) {
-                $delete = Storage::delete($getPhoto);
+                $delete = Storage::delete($getPhoto->photo);
             }
             $photo = $request->file('photo')->store('images/profile');
         } else {
